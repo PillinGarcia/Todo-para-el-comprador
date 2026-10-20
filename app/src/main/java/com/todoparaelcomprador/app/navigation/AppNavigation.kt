@@ -7,9 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.todoparaelcomprador.app.data.Producto
-import com.todoparaelcomprador.app.ui.screens.CarritoScreen
-import com.todoparaelcomprador.app.ui.screens.InicioScreen
-import com.todoparaelcomprador.app.ui.screens.ProductosScreen
+import com.todoparaelcomprador.app.ui.screens.*
 
 object Rutas {
     const val AUTH        = "auth"
