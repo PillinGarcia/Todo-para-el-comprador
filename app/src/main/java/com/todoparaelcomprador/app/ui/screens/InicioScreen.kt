@@ -38,7 +38,6 @@ import com.todoparaelcomprador.app.ui.theme.VerdeExito
 import com.todoparaelcomprador.app.viewmodel.ProductoViewModel
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     cantidadCarrito: Int,
@@ -49,7 +48,6 @@ fun InicioScreen(
     onAdminClick: () -> Unit,
     viewModel: ProductoViewModel = viewModel()
 ) {
-    // Estados que vienen de Firebase en tiempo real
     val productos by viewModel.productos.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
 
@@ -66,7 +64,6 @@ fun InicioScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // 1. Logo
                     Image(
                         painter = painterResource(id = R.drawable.logo_tienda),
                         contentDescription = "Logo",
@@ -74,8 +71,6 @@ fun InicioScreen(
                         contentScale = ContentScale.Crop
                     )
                     Spacer(Modifier.width(12.dp))
-                    
-                    // 2. Barra de búsqueda
                     Surface(
                         modifier = Modifier.weight(1f).height(40.dp),
                         shape = RoundedCornerShape(20.dp),
@@ -89,40 +84,23 @@ fun InicioScreen(
                     }
                     Spacer(Modifier.width(8.dp))
                     
-                    // 3. BOTÓN DE ADMINISTRADOR (solo visible si isAdmin es true)
                     if (isAdmin) {
                         IconButton(onClick = onAdminClick) {
-                            Icon(
-                                imageVector = Icons.Default.Settings, 
-                                contentDescription = "Panel de Administrador", 
-                                tint = Color.White
-                            )
+                            Icon(Icons.Default.Settings, contentDescription = "Admin", tint = Color.White)
                         }
                     }
 
-                    // 4. Carrito de compras con su Badge
                     BadgedBox(
-                        badge = { 
-                            if (cantidadCarrito > 0) {
-                                Badge(containerColor = MaterialTheme.colorScheme.secondary) { 
-                                    Text("$cantidadCarrito", color = Color.White) 
-                                } 
-                            } 
-                        }
+                        badge = { if (cantidadCarrito > 0) Badge(containerColor = MaterialTheme.colorScheme.secondary) { Text("$cantidadCarrito", color = Color.White) } }
                     ) {
                         IconButton(onClick = onCarritoClick) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart, 
-                                contentDescription = "Carrito", 
-                                tint = Color.White
-                            )
+                            Icon(Icons.Default.ShoppingCart, "Carrito", tint = Color.White)
                         }
                     }
                 }
 
                 Spacer(Modifier.height(8.dp))
 
-                // 5. Categorías horizontales
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
                     items(DatosApp.categorias) { cat ->
                         Text(
@@ -136,7 +114,6 @@ fun InicioScreen(
             }
         }
     ) { padding ->
-        // Si está cargando los datos de Firebase, mostramos un spinner
         if (cargando) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -149,7 +126,7 @@ fun InicioScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Banner de Ofertas (Ocupa 2 columnas)
+                // Banner de Ofertas
                 item(span = { GridItemSpan(2) }) {
                     Card(
                         shape = RoundedCornerShape(12.dp),
@@ -170,27 +147,19 @@ fun InicioScreen(
                     }
                 }
 
-                // Título de la sección de productos
                 item(span = { GridItemSpan(2) }) {
                     Text("Ofertas Relámpago ⚡", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(top = 8.dp))
                 }
 
-                // Productos Dinámicos desde Firestore (Si no hay, se mostrará el mensaje de abajo)
-                if (productos.isEmpty()) {
-                    item(span = { GridItemSpan(2) }) {
-                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                            Text("No hay productos agregados aún. (Entra como Admin para agregar)", color = Color.Gray)
-                        }
-                    }
-                } else {
-                    items(productos) { producto ->
-                        ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar)
-                    }
+                // Productos Dinámicos desde Firestore
+                items(productos) { producto ->
+                    ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar)
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ProductoCardMercadoLibre(
