@@ -72,7 +72,7 @@ fun AdminScreen(onBack: () -> Unit) {
                     
                     isLoading = true
                     val nuevoProducto = hashMapOf(
-                        "id" to UUID.randomUUID().toString(),
+                        "id" to (1000..9999).random(),
                         "nombre" to nombre,
                         "precio" to precioDouble,
                         "categoriaId" to catInt,
