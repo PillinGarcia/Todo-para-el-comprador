@@ -86,7 +86,11 @@ fun InicioScreen(
                     
                     if (isAdmin) {
                         IconButton(onClick = onAdminClick) {
-                            Icon(Icons.Default.Settings, contentDescription = "Admin", tint = Color.White)
+                            Icon(
+                                imageVector = Icons.Default.Settings, 
+                                contentDescription = "Admin", 
+                                tint = Color.White
+                            )
                         }
                     }
 
