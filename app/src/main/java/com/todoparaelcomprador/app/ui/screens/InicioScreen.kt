@@ -2,20 +2,22 @@ package com.todoparaelcomprador.app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,20 +29,30 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.todoparaelcomprador.app.R
 import com.todoparaelcomprador.app.data.DatosApp
 import com.todoparaelcomprador.app.data.Producto
 import com.todoparaelcomprador.app.ui.theme.AmarilloOferta
 import com.todoparaelcomprador.app.ui.theme.VerdeExito
+import com.todoparaelcomprador.app.viewmodel.ProductoViewModel
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     cantidadCarrito: Int,
+    isAdmin: Boolean,
     onCategoriaClick: (Int) -> Unit,
     onCarritoClick: () -> Unit,
-    onAgregar: (Producto) -> Unit
+    onAgregar: (Producto) -> Unit,
+    onAdminClick: () -> Unit,
+    viewModel: ProductoViewModel = viewModel()
 ) {
+    // Estados que vienen de Firebase en tiempo real
+    val productos by viewModel.productos.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
+
     Scaffold(
         topBar = {
             Column(
@@ -50,65 +62,68 @@ fun InicioScreen(
                     .padding(horizontal = 12.dp, vertical = 8.dp)
                     .statusBarsPadding()
             ) {
-                // Barra de Búsqueda estilo Mercado Libre
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Logo pequeño
+                    // 1. Logo
                     Image(
                         painter = painterResource(id = R.drawable.logo_tienda),
                         contentDescription = "Logo",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
+                        modifier = Modifier.size(40.dp).clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
                     Spacer(Modifier.width(12.dp))
                     
-                    // Caja de búsqueda
+                    // 2. Barra de búsqueda
                     Surface(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(40.dp),
+                        modifier = Modifier.weight(1f).height(40.dp),
                         shape = RoundedCornerShape(20.dp),
                         color = Color.White
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 12.dp)
-                        ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 12.dp)) {
                             Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.Gray, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
                             Text("Buscar en TODO PARA EL COMPRADOR", color = Color.Gray, fontSize = 13.sp, maxLines = 1)
                         }
                     }
-                    
                     Spacer(Modifier.width(8.dp))
                     
-                    // Carrito con contador
+                    // 3. BOTÓN DE ADMINISTRADOR (solo visible si isAdmin es true)
+                    if (isAdmin) {
+                        IconButton(onClick = onAdminClick) {
+                            Icon(
+                                imageVector = Icons.Default.Settings, 
+                                contentDescription = "Panel de Administrador", 
+                                tint = Color.White
+                            )
+                        }
+                    }
+
+                    // 4. Carrito de compras con su Badge
                     BadgedBox(
-                        badge = {
+                        badge = { 
                             if (cantidadCarrito > 0) {
-                                Badge(containerColor = MaterialTheme.colorScheme.secondary) {
-                                    Text("$cantidadCarrito", color = Color.White)
-                                }
-                            }
+                                Badge(containerColor = MaterialTheme.colorScheme.secondary) { 
+                                    Text("$cantidadCarrito", color = Color.White) 
+                                } 
+                            } 
                         }
                     ) {
                         IconButton(onClick = onCarritoClick) {
-                            Icon(Icons.Default.ShoppingCart, "Carrito", tint = Color.White)
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart, 
+                                contentDescription = "Carrito", 
+                                tint = Color.White
+                            )
                         }
                     }
                 }
 
                 Spacer(Modifier.height(8.dp))
 
-                // Categorías horizontales estilo Mercado Libre
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                // 5. Categorías horizontales
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
                     items(DatosApp.categorias) { cat ->
                         Text(
                             text = cat.nombre,
@@ -121,54 +136,57 @@ fun InicioScreen(
             }
         }
     ) { padding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Banner de Ofertas (Ocupa las 2 columnas)
-            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+        // Si está cargando los datos de Firebase, mostramos un spinner
+        if (cargando) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.padding(padding).fillMaxSize().background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Banner de Ofertas (Ocupa 2 columnas)
+                item(span = { GridItemSpan(2) }) {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("REMATES DE TEMPORADA", color = AmarilloOferta, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text("HASTA 50% OFF", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
-                            Spacer(Modifier.height(8.dp))
-                            Surface(color = Color.White, shape = RoundedCornerShape(8.dp)) {
-                                Text("Ver ofertas", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("REMATES DE TEMPORADA", color = AmarilloOferta, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("HASTA 50% OFF", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
+                                Spacer(Modifier.height(8.dp))
+                                Surface(color = Color.White, shape = RoundedCornerShape(8.dp)) {
+                                    Text("Ver ofertas", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                                }
                             }
+                            Text("🛍️", fontSize = 50.sp)
                         }
-                        Text("🛍️", fontSize = 50.sp)
                     }
                 }
-            }
 
-            // Título de sección
-            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
-                Text(
-                    "Ofertas Relámpago ⚡",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+                // Título de la sección de productos
+                item(span = { GridItemSpan(2) }) {
+                    Text("Ofertas Relámpago ⚡", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(top = 8.dp))
+                }
 
-            // Productos
-            items(DatosApp.productos) { producto ->
-                ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar, onCategoriaClick = onCategoriaClick)
+                // Productos Dinámicos desde Firestore (Si no hay, se mostrará el mensaje de abajo)
+                if (productos.isEmpty()) {
+                    item(span = { GridItemSpan(2) }) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                            Text("No hay productos agregados aún. (Entra como Admin para agregar)", color = Color.Gray)
+                        }
+                    }
+                } else {
+                    items(productos) { producto ->
+                        ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar)
+                    }
+                }
             }
         }
     }
@@ -177,8 +195,7 @@ fun InicioScreen(
 @Composable
 fun ProductoCardMercadoLibre(
     producto: Producto,
-    onAgregar: (Producto) -> Unit,
-    onCategoriaClick: (Int) -> Unit
+    onAgregar: (Producto) -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -221,7 +238,7 @@ fun ProductoCardMercadoLibre(
 
             Spacer(Modifier.height(4.dp))
 
-            // Precio tachado simulado (Calculamos un 20% más)
+            // Precio tachado simulado (Calculamos un 20% más para simular el descuento)
             val precioOriginal = producto.precio * 1.25
             Text(
                 "$${String.format(Locale.US, "%.2f", precioOriginal)}",
