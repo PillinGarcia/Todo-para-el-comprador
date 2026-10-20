@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "421461451036",
+    "project_id": "todo-para-el-comprador",
+    "storage_bucket": "todo-para-el-comprador.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421461451036:android:f3971299d7e19480abdad9",
+        "android_client_info": {
+          "package_name": "com.todoparaelcomprador.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnLBRXWYWpIpVGc4glvekNKdrb_FhQjFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
