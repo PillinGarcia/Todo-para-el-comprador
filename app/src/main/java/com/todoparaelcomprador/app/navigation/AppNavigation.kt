@@ -34,6 +34,9 @@ fun AppNavigation() {
                 },
                 onCarritoClick = {
                     navController.navigate(Rutas.CARRITO)
+                },
+                onAgregar = { producto -> // <--- NUEVO: Agregar directo desde inicio
+                    carrito.add(producto)
                 }
             )
         }
