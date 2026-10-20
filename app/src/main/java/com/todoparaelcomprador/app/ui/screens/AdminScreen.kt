@@ -8,10 +8,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +48,7 @@ fun AdminScreen(onBack: () -> Unit) {
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            Text("Añadir Nuevo Producto", fontSize = 20.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            Text("Añadir Nuevo Producto", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
 
             OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre del producto") }, modifier = Modifier.fillMaxWidth())
@@ -77,7 +77,7 @@ fun AdminScreen(onBack: () -> Unit) {
                         "precio" to precioDouble,
                         "categoriaId" to catInt,
                         "descripcion" to descripcion,
-                        "emoji" to "📦" // Emoji por defecto
+                        "emoji" to "📦"
                     )
 
                     db.collection("productos").add(nuevoProducto)
