@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AuthScreen(
-    onLoginSuccess: (Boolean) -> Unit // true = admin, false = cliente
+    onLoginSuccess: (Boolean) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -77,15 +77,14 @@ fun AuthScreen(
                 }
                 isLoading = true
                 errorMessage = null
-                
+
                 if (isRegistering) {
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             isLoading = false
                             if (task.isSuccessful) {
-                                // Verificamos si es el admin
                                 val userEmail = auth.currentUser?.email
-                                val isAdmin = userEmail == "herigarciandreu@gmail.com" // <-- TU CORREO DE ADMIN
+                                val isAdmin = userEmail == "admin@todoparaelcomprador.com" // <-- CAMBIA ESTO POR TU CORREO
                                 onLoginSuccess(isAdmin)
                             } else {
                                 errorMessage = task.exception?.message
@@ -97,7 +96,7 @@ fun AuthScreen(
                             isLoading = false
                             if (task.isSuccessful) {
                                 val userEmail = auth.currentUser?.email
-                                val isAdmin = userEmail == "herigarciandreu@gmail.com" // <-- TU CORREO DE ADMIN
+                                val isAdmin = userEmail == "admin@todoparaelcomprador.com" // <-- CAMBIA ESTO POR TU CORREO
                                 onLoginSuccess(isAdmin)
                             } else {
                                 errorMessage = task.exception?.message
