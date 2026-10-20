@@ -3,12 +3,15 @@ package com.todoparaelcomprador.app.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,58 +22,76 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.todoparaelcomprador.app.R
 import com.todoparaelcomprador.app.data.DatosApp
+import com.todoparaelcomprador.app.data.Producto
+import com.todoparaelcomprador.app.ui.theme.AmarilloOferta
+import com.todoparaelcomprador.app.ui.theme.VerdeExito
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     cantidadCarrito: Int,
     onCategoriaClick: (Int) -> Unit,
-    onCarritoClick: () -> Unit
+    onCarritoClick: () -> Unit,
+    onAgregar: (Producto) -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // LOGO PEQUEÑO EN LA BARRA SUPERIOR
-                        Image(
-                            painter = painterResource(id = R.drawable.logo_tienda),
-                            contentDescription = "Logo",
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                "TODO PARA EL",
-                                fontWeight = FontWeight.Black,
-                                fontSize = 14.sp,
-                                color = Color.White
-                            )
-                            Text(
-                                "COMPRADOR",
-                                fontWeight = FontWeight.Black,
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .statusBarsPadding()
+            ) {
+                // Barra de Búsqueda estilo Mercado Libre
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Logo pequeño
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_tienda),
+                        contentDescription = "Logo",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    
+                    // Caja de búsqueda
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color.White
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        ) {
+                            Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Buscar en TODO PARA EL COMPRADOR", color = Color.Gray, fontSize = 13.sp, maxLines = 1)
                         }
                     }
-                },
-                actions = {
+                    
+                    Spacer(Modifier.width(8.dp))
+                    
+                    // Carrito con contador
                     BadgedBox(
                         badge = {
                             if (cantidadCarrito > 0) {
-                                Badge(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                    contentColor = Color.White
-                                ) { Text("$cantidadCarrito") }
+                                Badge(containerColor = MaterialTheme.colorScheme.secondary) {
+                                    Text("$cantidadCarrito", color = Color.White)
+                                }
                             }
                         }
                     ) {
@@ -78,103 +99,168 @@ fun InicioScreen(
                             Icon(Icons.Default.ShoppingCart, "Carrito", tint = Color.White)
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
-            )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // Categorías horizontales estilo Mercado Libre
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(DatosApp.categorias) { cat ->
+                        Text(
+                            text = cat.nombre,
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 13.sp,
+                            modifier = Modifier.clickable { onCategoriaClick(cat.id) }
+                        )
+                    }
+                }
+            }
         }
     ) { padding ->
-        Column(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Spacer(Modifier.height(20.dp))
-
-            // BIENVENIDA CON LOGO GRANDE
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_tienda),
-                    contentDescription = "Logo TODO PARA EL COMPRADOR",
-                    modifier = Modifier
-                        .size(90.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(Modifier.width(12.dp))
-                Column {
-                    Text(
-                        "¡Bienvenido!",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        "Explora nuestras categorías y encuentra todo lo que necesitas.",
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                        lineHeight = 16.sp
-                    )
+            // Banner de Ofertas (Ocupa las 2 columnas)
+            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("REMATES DE TEMPORADA", color = AmarilloOferta, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text("HASTA 50% OFF", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
+                            Spacer(Modifier.height(8.dp))
+                            Surface(color = Color.White, shape = RoundedCornerShape(8.dp)) {
+                                Text("Ver ofertas", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                            }
+                        }
+                        Text("🛍️", fontSize = 50.sp)
+                    }
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            // Título de sección
+            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
+                Text(
+                    "Ofertas Relámpago ⚡",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
-            Text(
-                "Categorías",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            // Productos
+            items(DatosApp.productos) { producto ->
+                ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar, onCategoriaClick = onCategoriaClick)
+            }
+        }
+    }
+}
 
-            Spacer(Modifier.height(10.dp))
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
+@Composable
+fun ProductoCardMercadoLibre(
+    producto: Producto,
+    onAgregar: (Producto) -> Unit,
+    onCategoriaClick: (Int) -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Imagen simulada con emoji
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                items(DatosApp.categorias) { cat ->
-                    Card(
-                        onClick = { onCategoriaClick(cat.id) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(115.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(cat.colorHex))
+                Text(producto.emoji, fontSize = 60.sp)
+                // Etiqueta de "Más Vendido"
+                if (producto.precio > 30) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(14.dp),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(cat.emoji, fontSize = 32.sp)
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                cat.nombre,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 2,
-                                textAlign = TextAlign.Start
-                            )
-                        }
+                        Text("MÁS VENDIDO", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(4.dp))
                     }
                 }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                producto.nombre,
+                fontSize = 14.sp,
+                color = Color.Black,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 18.sp
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            // Precio tachado simulado (Calculamos un 20% más)
+            val precioOriginal = producto.precio * 1.25
+            Text(
+                "$${String.format(Locale.US, "%.2f", precioOriginal)}",
+                fontSize = 12.sp,
+                color = Color.Gray,
+                textDecoration = TextDecoration.LineThrough
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "$${String.format(Locale.US, "%.2f", producto.precio)}",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    "20% OFF",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = VerdeExito
+                )
+            }
+
+            Spacer(Modifier.height(4.dp))
+            Text("Envío gratis", fontSize = 12.sp, color = VerdeExito, fontWeight = FontWeight.Bold)
+
+            Spacer(Modifier.height(8.dp))
+            
+            // Botón de agregar rápido
+            Button(
+                onClick = { onAgregar(producto) },
+                modifier = Modifier.fillMaxWidth().height(36.dp),
+                contentPadding = PaddingValues(0.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+            ) {
+                Icon(Icons.Default.ShoppingCart, contentDescription = "Agregar", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Agregar", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
