@@ -85,7 +85,7 @@ fun AuthScreen(
                             if (task.isSuccessful) {
                                 // Verificamos si es el admin
                                 val userEmail = auth.currentUser?.email
-                                val isAdmin = userEmail == "admin@todoparaelcomprador.com" // <-- TU CORREO DE ADMIN
+                                val isAdmin = userEmail == "herigarciandreu@gmail.com" // <-- TU CORREO DE ADMIN
                                 onLoginSuccess(isAdmin)
                             } else {
                                 errorMessage = task.exception?.message
@@ -97,7 +97,7 @@ fun AuthScreen(
                             isLoading = false
                             if (task.isSuccessful) {
                                 val userEmail = auth.currentUser?.email
-                                val isAdmin = userEmail == "admin@todoparaelcomprador.com" // <-- TU CORREO DE ADMIN
+                                val isAdmin = userEmail == "herigarciandreu@gmail.com" // <-- TU CORREO DE ADMIN
                                 onLoginSuccess(isAdmin)
                             } else {
                                 errorMessage = task.exception?.message
