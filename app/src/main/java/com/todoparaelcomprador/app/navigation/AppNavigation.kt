@@ -12,32 +12,43 @@ import com.todoparaelcomprador.app.ui.screens.InicioScreen
 import com.todoparaelcomprador.app.ui.screens.ProductosScreen
 
 object Rutas {
-    const val INICIO     = "inicio"
-    const val PRODUCTOS  = "productos"
-    const val CARRITO    = "carrito"
+    const val AUTH        = "auth"
+    const val INICIO      = "inicio"
+    const val PRODUCTOS   = "productos"
+    const val CARRITO     = "carrito"
+    const val ADMIN       = "admin" // Nueva ruta para el administrador
 }
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val carrito = remember { mutableStateListOf<Producto>() }
+    var isAdmin by remember { mutableStateOf(false) }
+
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.INICIO
+        startDestination = Rutas.AUTH // <-- Iniciamos en el Login
     ) {
+        composable(Rutas.AUTH) {
+            AuthScreen(
+                onLoginSuccess = { admin ->
+                    isAdmin = admin
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.AUTH) { inclusive = true } // Evita volver al login con "atrás"
+                    }
+                }
+            )
+        }
+
         composable(Rutas.INICIO) {
             InicioScreen(
                 cantidadCarrito = carrito.size,
-                onCategoriaClick = { id ->
-                    navController.navigate("${Rutas.PRODUCTOS}/$id")
-                },
-                onCarritoClick = {
-                    navController.navigate(Rutas.CARRITO)
-                },
-                onAgregar = { producto -> // <--- NUEVO: Agregar directo desde inicio
-                    carrito.add(producto)
-                }
+                isAdmin = isAdmin,
+                onCategoriaClick = { id -> navController.navigate("${Rutas.PRODUCTOS}/$id") },
+                onCarritoClick = { navController.navigate(Rutas.CARRITO) },
+                onAgregar = { carrito.add(it) },
+                onAdminClick = { navController.navigate(Rutas.ADMIN) } // Botón para ir al panel
             )
         }
 
@@ -61,6 +72,10 @@ fun AppNavigation() {
                 onBack = { navController.popBackStack() },
                 onEliminar = { carrito.remove(it) }
             )
+        }
+
+        composable(Rutas.ADMIN) {
+            AdminScreen(onBack = { navController.popBackStack() })
         }
     }
 }
