@@ -39,6 +39,7 @@ class ProductoViewModel : ViewModel() {
                                 categoriaId = (doc.getLong("categoriaId") ?: 0).toInt(),
                                 descripcion = doc.getString("descripcion") ?: "",
                                 emoji = doc.getString("emoji") ?: "📦"
+                                imagenUrl = doc.getString("imagenUrl") ?: ""
                             )
                         } catch (e: Exception) {
                             null
