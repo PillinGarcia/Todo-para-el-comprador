@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage // <-- IMPORTANTE: Importación para cargar imágenes de internet
 import com.todoparaelcomprador.app.R
 import com.todoparaelcomprador.app.data.DatosApp
 import com.todoparaelcomprador.app.data.Producto
@@ -38,6 +39,7 @@ import com.todoparaelcomprador.app.ui.theme.VerdeExito
 import com.todoparaelcomprador.app.viewmodel.ProductoViewModel
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     cantidadCarrito: Int,
@@ -48,6 +50,7 @@ fun InicioScreen(
     onAdminClick: () -> Unit,
     viewModel: ProductoViewModel = viewModel()
 ) {
+    // Estados que vienen de Firebase en tiempo real
     val productos by viewModel.productos.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
 
@@ -64,6 +67,7 @@ fun InicioScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    // 1. Logo
                     Image(
                         painter = painterResource(id = R.drawable.logo_tienda),
                         contentDescription = "Logo",
@@ -71,6 +75,8 @@ fun InicioScreen(
                         contentScale = ContentScale.Crop
                     )
                     Spacer(Modifier.width(12.dp))
+                    
+                    // 2. Barra de búsqueda
                     Surface(
                         modifier = Modifier.weight(1f).height(40.dp),
                         shape = RoundedCornerShape(20.dp),
@@ -84,6 +90,7 @@ fun InicioScreen(
                     }
                     Spacer(Modifier.width(8.dp))
                     
+                    // 3. BOTÓN DE ADMINISTRADOR
                     if (isAdmin) {
                         IconButton(onClick = onAdminClick) {
                             Icon(
@@ -94,8 +101,15 @@ fun InicioScreen(
                         }
                     }
 
+                    // 4. Carrito de compras
                     BadgedBox(
-                        badge = { if (cantidadCarrito > 0) Badge(containerColor = MaterialTheme.colorScheme.secondary) { Text("$cantidadCarrito", color = Color.White) } }
+                        badge = { 
+                            if (cantidadCarrito > 0) {
+                                Badge(containerColor = MaterialTheme.colorScheme.secondary) { 
+                                    Text("$cantidadCarrito", color = Color.White) 
+                                } 
+                            } 
+                        }
                     ) {
                         IconButton(onClick = onCarritoClick) {
                             Icon(Icons.Default.ShoppingCart, "Carrito", tint = Color.White)
@@ -105,6 +119,7 @@ fun InicioScreen(
 
                 Spacer(Modifier.height(8.dp))
 
+                // 5. Categorías horizontales
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
                     items(DatosApp.categorias) { cat ->
                         Text(
@@ -156,14 +171,21 @@ fun InicioScreen(
                 }
 
                 // Productos Dinámicos desde Firestore
-                items(productos) { producto ->
-                    ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar)
+                if (productos.isEmpty()) {
+                    item(span = { GridItemSpan(2) }) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                            Text("No hay productos agregados aún. (Entra como Admin para agregar)", color = Color.Gray)
+                        }
+                    }
+                } else {
+                    items(productos) { producto ->
+                        ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar)
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun ProductoCardMercadoLibre(
@@ -177,7 +199,8 @@ fun ProductoCardMercadoLibre(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Imagen simulada con emoji
+            
+            // --- INICIO DEL PASO 6: IMAGEN O EMOJI ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -185,7 +208,19 @@ fun ProductoCardMercadoLibre(
                     .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(producto.emoji, fontSize = 60.sp)
+                if (producto.imagenUrl.isNotEmpty()) {
+                    // Si el producto tiene una URL de imagen, la cargamos con Coil
+                    AsyncImage(
+                        model = producto.imagenUrl,
+                        contentDescription = producto.nombre,
+                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Si no hay imagen, mostramos el emoji por defecto
+                    Text(producto.emoji, fontSize = 60.sp)
+                }
+                
                 // Etiqueta de "Más Vendido"
                 if (producto.precio > 30) {
                     Surface(
@@ -197,6 +232,7 @@ fun ProductoCardMercadoLibre(
                     }
                 }
             }
+            // --- FIN DEL PASO 6 ---
 
             Spacer(Modifier.height(8.dp))
 
@@ -211,7 +247,7 @@ fun ProductoCardMercadoLibre(
 
             Spacer(Modifier.height(4.dp))
 
-            // Precio tachado simulado (Calculamos un 20% más para simular el descuento)
+            // Precio tachado simulado
             val precioOriginal = producto.precio * 1.25
             Text(
                 "$${String.format(Locale.US, "%.2f", precioOriginal)}",
