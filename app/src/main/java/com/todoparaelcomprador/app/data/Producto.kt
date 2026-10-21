@@ -7,4 +7,5 @@ data class Producto(
     val categoriaId: Int,
     val descripcion: String,
     val emoji: String
+    val imagenUrl: String = ""
 )
