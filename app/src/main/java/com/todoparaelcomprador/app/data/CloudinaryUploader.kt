@@ -11,9 +11,9 @@ import java.util.concurrent.TimeUnit
 
 object CloudinaryUploader {
     // ⚠️ REEMPLAZA ESTOS DATOS CON LOS TUYOS DE CLOUDINARY
-    private const val CLOUD_NAME = "TU_CLOUD_NAME"
-    private const val API_KEY = "TU_API_KEY"
-    private const val API_SECRET = "TU_API_SECRET"
+    private const val CLOUD_NAME = "fuhzuh4j"
+    private const val API_KEY = "123413332362734"
+    private const val API_SECRET = "uHbggrMIRYYGlEQeZwKLQXcfCvw"
 
     suspend fun subirImagen(imageBytes: ByteArray): String? = withContext(Dispatchers.IO) {
         try {
