@@ -15,7 +15,6 @@ object DatosApp {
     )
 
     val productos = listOf(
-        // ELECTRÓNICA
         Producto(
             id = "1",
             nombre = "Audífonos Bluetooth",
@@ -71,8 +70,6 @@ object DatosApp {
             stock = 7,
             visible = true
         ),
-
-        // CALZADO
         Producto(
             id = "6",
             nombre = "Zapatillas deportivas",
@@ -117,8 +114,6 @@ object DatosApp {
             stock = 6,
             visible = true
         ),
-
-        // ROPA
         Producto(
             id = "10",
             nombre = "Camiseta algodón",
@@ -163,8 +158,6 @@ object DatosApp {
             stock = 10,
             visible = true
         ),
-
-        // JUGUETES
         Producto(
             id = "14",
             nombre = "Bloques de construcción",
@@ -209,8 +202,6 @@ object DatosApp {
             stock = 15,
             visible = true
         ),
-
-        // CUMPLEAÑOS
         Producto(
             id = "18",
             nombre = "Globos decorativos x50",
@@ -255,8 +246,6 @@ object DatosApp {
             stock = 5,
             visible = true
         ),
-
-        // PAPELERÍA
         Producto(
             id = "22",
             nombre = "Cuaderno universitario",
@@ -301,8 +290,6 @@ object DatosApp {
             stock = 15,
             visible = true
         ),
-
-        // HOGAR
         Producto(
             id = "26",
             nombre = "Juego de sábanas",
@@ -347,8 +334,6 @@ object DatosApp {
             stock = 8,
             visible = true
         ),
-
-        // HIGIENE
         Producto(
             id = "30",
             nombre = "Kit cepillo dental",
@@ -393,8 +378,6 @@ object DatosApp {
             stock = 20,
             visible = true
         ),
-
-        // FERRETERÍA
         Producto(
             id = "34",
             nombre = "Taladro inalámbrico",
@@ -419,7 +402,7 @@ object DatosApp {
         ),
         Producto(
             id = "36",
-            nombre = "Martillo profesional",
+            nombre = "Compose de prueba",
             descripcion = "Mango antideslizante",
             precio = 15.00,
             imagenUrl = "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=500",
@@ -443,10 +426,6 @@ object DatosApp {
 
     fun productosPorCategoria(categoriaId: Int): List<Producto> =
         productos.filter { it.categoria.toIntOrNull() == categoriaId }
-
-    fun categoriaPorId(id: Int): Categoria? =
-        categorias.find { it.id == id }
-}
 
     fun categoriaPorId(id: Int): Categoria? =
         categorias.find { it.id == id }
