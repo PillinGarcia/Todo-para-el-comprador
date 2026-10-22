@@ -29,8 +29,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage // <-- IMPORTANTE: Importación para cargar imágenes de internet
+import coil.compose.AsyncImage
 import com.todoparaelcomprador.app.R
 import com.todoparaelcomprador.app.data.DatosApp
 import com.todoparaelcomprador.app.data.Producto
@@ -42,17 +41,19 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
-    cantidadCarrito: Int,
-    isAdmin: Boolean,
+    viewModel: ProductoViewModel,
+    onProductoClick: (Producto) -> Unit,
     onCategoriaClick: (Int) -> Unit,
     onCarritoClick: () -> Unit,
-    onAgregar: (Producto) -> Unit,
-    onAdminClick: () -> Unit,
-    viewModel: ProductoViewModel = viewModel()
+    onAdminClick: () -> Unit
 ) {
-    // Estados que vienen de Firebase en tiempo real
     val productos by viewModel.productos.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
+
+    // Valores provisionales (conéctalos a tu lógica real de carrito/admin cuando la tengas)
+    val cantidadCarrito = 0
+    val isAdmin = true
+    val onAgregar: (Producto) -> Unit = { producto -> onProductoClick(producto) }
 
     Scaffold(
         topBar = {
@@ -75,40 +76,53 @@ fun InicioScreen(
                         contentScale = ContentScale.Crop
                     )
                     Spacer(Modifier.width(12.dp))
-                    
+
                     // 2. Barra de búsqueda
                     Surface(
                         modifier = Modifier.weight(1f).height(40.dp),
                         shape = RoundedCornerShape(20.dp),
                         color = Color.White
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 12.dp)) {
-                            Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Buscar",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
                             Spacer(Modifier.width(8.dp))
-                            Text("Buscar en TODO PARA EL COMPRADOR", color = Color.Gray, fontSize = 13.sp, maxLines = 1)
+                            Text(
+                                "Buscar en TODO PARA EL COMPRADOR",
+                                color = Color.Gray,
+                                fontSize = 13.sp,
+                                maxLines = 1
+                            )
                         }
                     }
                     Spacer(Modifier.width(8.dp))
-                    
-                    // 3. BOTÓN DE ADMINISTRADOR
+
+                    // 3. Botón de administrador
                     if (isAdmin) {
                         IconButton(onClick = onAdminClick) {
                             Icon(
-                                imageVector = Icons.Default.Settings, 
-                                contentDescription = "Admin", 
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Admin",
                                 tint = Color.White
                             )
                         }
                     }
 
-                    // 4. Carrito de compras
+                    // 4. Carrito
                     BadgedBox(
-                        badge = { 
+                        badge = {
                             if (cantidadCarrito > 0) {
-                                Badge(containerColor = MaterialTheme.colorScheme.secondary) { 
-                                    Text("$cantidadCarrito", color = Color.White) 
-                                } 
-                            } 
+                                Badge(containerColor = MaterialTheme.colorScheme.secondary) {
+                                    Text("$cantidadCarrito", color = Color.White)
+                                }
+                            }
                         }
                     ) {
                         IconButton(onClick = onCarritoClick) {
@@ -120,7 +134,10 @@ fun InicioScreen(
                 Spacer(Modifier.height(8.dp))
 
                 // 5. Categorías horizontales
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     items(DatosApp.categorias) { cat ->
                         Text(
                             text = cat.nombre,
@@ -134,13 +151,19 @@ fun InicioScreen(
         }
     ) { padding ->
         if (cargando) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier.padding(padding).fillMaxSize().background(MaterialTheme.colorScheme.background),
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -152,13 +175,32 @@ fun InicioScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("REMATES DE TEMPORADA", color = AmarilloOferta, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("HASTA 50% OFF", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
+                                Text(
+                                    "REMATES DE TEMPORADA",
+                                    color = AmarilloOferta,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                                Text(
+                                    "HASTA 50% OFF",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 24.sp
+                                )
                                 Spacer(Modifier.height(8.dp))
                                 Surface(color = Color.White, shape = RoundedCornerShape(8.dp)) {
-                                    Text("Ver ofertas", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                                    Text(
+                                        "Ver ofertas",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                    )
                                 }
                             }
                             Text("🛍️", fontSize = 50.sp)
@@ -167,19 +209,35 @@ fun InicioScreen(
                 }
 
                 item(span = { GridItemSpan(2) }) {
-                    Text("Ofertas Relámpago ⚡", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(top = 8.dp))
+                    Text(
+                        "Ofertas Relámpago ⚡",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
 
-                // Productos Dinámicos desde Firestore
+                // Productos dinámicos desde el ViewModel
                 if (productos.isEmpty()) {
                     item(span = { GridItemSpan(2) }) {
-                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                            Text("No hay productos agregados aún. (Entra como Admin para agregar)", color = Color.Gray)
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "No hay productos agregados aún. (Entra como Admin para agregar)",
+                                color = Color.Gray
+                            )
                         }
                     }
                 } else {
                     items(productos) { producto ->
-                        ProductoCardMercadoLibre(producto = producto, onAgregar = onAgregar)
+                        ProductoCardMercadoLibre(
+                            producto = producto,
+                            onAgregar = onAgregar,
+                            onClick = { onProductoClick(producto) }
+                        )
                     }
                 }
             }
@@ -190,17 +248,20 @@ fun InicioScreen(
 @Composable
 fun ProductoCardMercadoLibre(
     producto: Producto,
-    onAgregar: (Producto) -> Unit
+    onAgregar: (Producto) -> Unit,
+    onClick: () -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            
-            // --- INICIO DEL PASO 6: IMAGEN O EMOJI ---
+
+            // Imagen o fallback con iniciales
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -209,7 +270,6 @@ fun ProductoCardMercadoLibre(
                 contentAlignment = Alignment.Center
             ) {
                 if (producto.imagenUrl.isNotEmpty()) {
-                    // Si el producto tiene una URL de imagen, la cargamos con Coil
                     AsyncImage(
                         model = producto.imagenUrl,
                         contentDescription = producto.nombre,
@@ -217,22 +277,31 @@ fun ProductoCardMercadoLibre(
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    // Si no hay imagen, mostramos el emoji por defecto
-                    Text(producto.emoji, fontSize = 60.sp)
+                    Text(
+                        text = producto.nombre.take(2).uppercase(),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
-                
-                // Etiqueta de "Más Vendido"
+
+                // Etiqueta "Más Vendido"
                 if (producto.precio > 30) {
                     Surface(
                         color = MaterialTheme.colorScheme.secondary,
                         shape = RoundedCornerShape(4.dp),
                         modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)
                     ) {
-                        Text("MÁS VENDIDO", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(4.dp))
+                        Text(
+                            "MÁS VENDIDO",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(4.dp)
+                        )
                     }
                 }
             }
-            // --- FIN DEL PASO 6 ---
 
             Spacer(Modifier.height(8.dp))
 
@@ -247,7 +316,6 @@ fun ProductoCardMercadoLibre(
 
             Spacer(Modifier.height(4.dp))
 
-            // Precio tachado simulado
             val precioOriginal = producto.precio * 1.25
             Text(
                 "$${String.format(Locale.US, "%.2f", precioOriginal)}",
@@ -276,18 +344,29 @@ fun ProductoCardMercadoLibre(
             Text("Envío gratis", fontSize = 12.sp, color = VerdeExito, fontWeight = FontWeight.Bold)
 
             Spacer(Modifier.height(8.dp))
-            
-            // Botón de agregar rápido
+
             Button(
                 onClick = { onAgregar(producto) },
                 modifier = Modifier.fillMaxWidth().height(36.dp),
                 contentPadding = PaddingValues(0.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                )
             ) {
-                Icon(Icons.Default.ShoppingCart, contentDescription = "Agregar", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                Icon(
+                    Icons.Default.ShoppingCart,
+                    contentDescription = "Agregar",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(Modifier.width(4.dp))
-                Text("Agregar", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Agregar",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
