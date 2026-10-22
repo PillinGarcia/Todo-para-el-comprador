@@ -34,8 +34,11 @@ fun ProductosScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("${categoria?.emoji ?: ""} ${categoria?.nombre ?: "Productos"}",
-                        fontWeight = FontWeight.Bold)
+                    // Si quitas el campo `emoji` de Categoria, deja solo: categoria?.nombre ?: "Productos"
+                    Text(
+                        "${categoria?.emoji ?: ""} ${categoria?.nombre ?: "Productos"}",
+                        fontWeight = FontWeight.Bold
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
