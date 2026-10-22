@@ -12,13 +12,17 @@ class ProductoViewModel : ViewModel() {
     private val _productos = MutableStateFlow<List<Producto>>(DatosApp.productos)
     val productos: StateFlow<List<Producto>> = _productos.asStateFlow()
 
+    // NUEVO: estado de carga requerido por InicioScreen
+    private val _cargando = MutableStateFlow(false)
+    val cargando: StateFlow<Boolean> = _cargando.asStateFlow()
+
     fun agregarProducto(nuevoProducto: Producto) {
         _productos.value = _productos.value + nuevoProducto
     }
 
     fun actualizarProducto(productoActualizado: Producto) {
-        _productos.value = _productos.value.map { 
-            if (it.id == productoActualizado.id) productoActualizado else it 
+        _productos.value = _productos.value.map {
+            if (it.id == productoActualizado.id) productoActualizado else it
         }
     }
 
