@@ -27,30 +27,41 @@ fun AppNavigation(
         navController = navController,
         startDestination = "inicio"
     ) {
-        // Pantalla de Inicio / Catálogo general
+        // Pantalla de Inicio
         composable("inicio") {
             InicioScreen(
                 viewModel = viewModel,
                 onProductoClick = { producto ->
                     navController.navigate("detalle/${producto.id}")
                 },
-                onIrAlCarrito = {
+                onCategoriaClick = { categoriaId ->
+                    navController.navigate("productos/$categoriaId")
+                },
+                onCarritoClick = {
                     navController.navigate("carrito")
                 },
-                onIrAlAdmin = {
+                onAdminClick = {
                     navController.navigate("admin")
                 }
             )
         }
 
-        // Pantalla de Productos por categoría o filtrados
-        composable("productos") {
+        // Pantalla de Productos filtrados por categoría (o general)
+        composable(
+            route = "productos/{categoriaId}",
+            arguments = listOf(navArgument("categoriaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val categoriaId = backStackEntry.arguments?.getInt("categoriaId") ?: 1
             ProductosScreen(
+                categoriaId = categoriaId,
                 viewModel = viewModel,
                 onProductoClick = { producto ->
                     navController.navigate("detalle/${producto.id}")
                 },
-                onVolver = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onCarritoClick = {
+                    navController.navigate("carrito")
+                }
             )
         }
 
@@ -60,14 +71,12 @@ fun AppNavigation(
             arguments = listOf(navArgument("productoId") { type = NavType.StringType })
         ) { backStackEntry ->
             val productoId = backStackEntry.arguments?.getString("productoId")
-            // Buscamos el producto en la lista del ViewModel
             val producto = productos.find { it.id == productoId } ?: DatosApp.productos.first()
 
             DetalleProductoScreen(
                 producto = producto,
                 onVolver = { navController.popBackStack() },
                 onAgregarAlCarrito = { prod ->
-                    // Lógica para agregar al carrito si lo manejas en tu app
                     navController.navigate("carrito")
                 }
             )
@@ -76,7 +85,7 @@ fun AppNavigation(
         // Pantalla del Carrito de Compras
         composable("carrito") {
             CarritoScreen(
-                onVolver = { navController.popBackStack() }
+                onBack = { navController.popBackStack() }
             )
         }
 
