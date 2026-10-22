@@ -1,50 +1,28 @@
 package com.todoparaelcomprador.app.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FirebaseFirestore
+import com.todoparaelcomprador.app.data.DatosApp
 import com.todoparaelcomprador.app.data.Producto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class ProductoViewModel : ViewModel() {
-    private val db = FirebaseFirestore.getInstance()
-    
-    private val _productos = MutableStateFlow<List<Producto>>(emptyList())
-    val productos: StateFlow<List<Producto>> = _productos
 
-    private val _cargando = MutableStateFlow(true)
-    val cargando: StateFlow<Boolean> = _cargando
+    private val _productos = MutableStateFlow<List<Producto>>(DatosApp.productos)
+    val productos: StateFlow<List<Producto>> = _productos.asStateFlow()
 
-    init {
-        escucharProductos()
+    fun agregarProducto(nuevoProducto: Producto) {
+        _productos.value = _productos.value + nuevoProducto
     }
 
-    private fun escucharProductos() {
-        db.collection("productos")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    _cargando.value = false
-                    return@addSnapshotListener
-                }
-                if (snapshot != null) {
-                    val lista = snapshot.documents.mapNotNull { doc ->
-                        try {
-                            Producto(
-                                id = (doc.getLong("id") ?: 0).toInt(),
-                                nombre = doc.getString("nombre") ?: "",
-                                precio = doc.getDouble("precio") ?: 0.0,
-                                categoriaId = (doc.getLong("categoriaId") ?: 0).toInt(),
-                                descripcion = doc.getString("descripcion") ?: "",
-                                emoji = doc.getString("emoji") ?: "📦",
-                                imagenUrl = doc.getString("imagenUrl") ?: ""
-                            )
-                        } catch (e: Exception) {
-                            null
-                        }
-                    }
-                    _productos.value = lista
-                    _cargando.value = false
-                }
-            }
+    fun actualizarProducto(productoActualizado: Producto) {
+        _productos.value = _productos.value.map { 
+            if (it.id == productoActualizado.id) productoActualizado else it 
+        }
+    }
+
+    fun eliminarProducto(id: String) {
+        _productos.value = _productos.value.filter { it.id != id }
     }
 }
