@@ -45,7 +45,12 @@ fun ProductoCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(producto.emoji, fontSize = 32.sp)
+                Text(
+                    text = producto.nombre.take(2).uppercase(),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
 
             Spacer(Modifier.width(12.dp))
